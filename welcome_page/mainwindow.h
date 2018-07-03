@@ -33,7 +33,9 @@ public slots:
 
     void updateRecents();
 
-    void simulateFileOpening(QString fileName);
+    void fileOpening(QString fileName);
+
+    void recentFileClicked();
 
 private:
 
@@ -41,12 +43,14 @@ private:
 
     QString* stringName, stringPath;
 
-    QWidget* recentsWidget;
+    QScrollArea* recentsWidget;
 
     QWidget* recents[recentsMaxNumber];
-
+    QVBoxLayout* labelLayout[recentsMaxNumber];
     QLabel* labelName[recentsMaxNumber];
     QLabel* labelPath[recentsMaxNumber];
+
+    QPushButton* recentsButton[recentsMaxNumber];
 
 };
 

@@ -18,7 +18,7 @@ void MainWindow::init()
     QWidget* mainWidget = new QWidget(this);
     setCentralWidget(mainWidget);
 
-    recentsWidget = new QWidget(mainWidget);
+    recentsWidget = new QScrollArea(mainWidget);
 
     QGridLayout* mainLayout = new QGridLayout(mainWidget);
 
@@ -35,7 +35,7 @@ void MainWindow::init()
 
     mainLayout->addWidget(buttonNew,0,0);
     mainLayout->addWidget(buttonOpen,0,1);
-    mainLayout->addWidget(recentsWidget,1,1);
+    mainLayout->addWidget(recentsWidget,1,1,1,3);
     QWidget* dummyWidget = new QWidget(mainWidget); //using a dummy widget because stretch doesn't work
     dummyWidget->setMaximumWidth(200);
     dummyWidget->setMinimumWidth(100);
@@ -53,12 +53,11 @@ void MainWindow::buttonOpen_clicked()
 {
     qDebug() << "buttonOpen was clicked";
     QFileDialog* dialog = new QFileDialog(this);
-    connect(dialog,SIGNAL(fileSelected(QString)),this,SLOT(simulateFileOpening(QString)));
+    connect(dialog,SIGNAL(fileSelected(QString)),this,SLOT(fileOpening(QString)));
     dialog->exec();
 }
 
-
-void MainWindow::simulateFileOpening(QString fileName)
+void MainWindow::fileOpening(QString fileName)
 {
     prependToRecents(fileName);
     updateRecents();
@@ -68,32 +67,31 @@ void MainWindow::simulateFileOpening(QString fileName)
 
 void MainWindow::updateRecents()
 {
-
-    QVBoxLayout* VLayoutRecents = new QVBoxLayout(recentsWidget);
-
+    qDeleteAll(recentsWidget->findChildren<QWidget*>("",Qt::FindDirectChildrenOnly));
     QSettings settings(QCoreApplication::organizationName(), QCoreApplication::applicationName());
 
     const QStringList recentFiles = readRecents(settings);
     const int count = qMin(int(recentsMaxNumber),recentFiles.size());
 
+    qDebug() << recentFiles.size();
+
     for (int i = 0; i < count; ++i)
     {
         const QString fileName = strippedName(recentFiles.at(i));
-        qDebug() << "name" << fileName;
-        recents[i] = new QWidget(recentsWidget);
-        labelName[i] = new QLabel(recents[i]);
-        labelName[i]->setText(QString("&%1. %2").arg(i + 1).arg(fileName));
-        labelPath[i] = new QLabel(recents[i]);
-        labelPath[i]->setText(QFileInfo(fileName).canonicalFilePath());
-        QVBoxLayout* labelLayout = new QVBoxLayout(recents[i]);
-        labelLayout->addWidget(labelName[i]);
-        labelLayout->addWidget(labelPath[i]);
-        VLayoutRecents->addWidget(recents[i]);
-        // for some reason, labels don't appear, but i'm pretty sure they did before i put this loop in a separate function;
-        // might want to move it back, or do something with the "recentsWidget" widget
+        const QString filePath = QFileInfo(recentFiles.at(i)).canonicalFilePath();
+        recentsButton[i] = new QPushButton(QString("%1. %2 \n %3").arg(i + 1).arg(fileName)
+                                           .arg(filePath),recentsWidget);
+        recentsButton[i]->setVisible(true);
+        recentsButton[i]->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
+        recentsButton[i]->setStyleSheet("QPushButton"
+                                        " {"
+                                        "   background-color: rgb(240,240,240);"
+                                        "   border: 1px solid rgb(240,240,240);"
+                                        " }"
+                                        "QPushButton:hover { background-color: white; }");
+        recentsButton[i]->move(5, 5 + 35*i);
+        connect(recentsButton[i],SIGNAL(clicked(bool)),this,SLOT(recentFileClicked()));
     }
-    recentsWidget->setLayout(VLayoutRecents);
-    recentsWidget->update();
 }
 
 QStringList MainWindow::readRecents(QSettings &settings)
@@ -122,6 +120,7 @@ QString MainWindow::fileKey()
 
 QString MainWindow::strippedName(const QString &fullFileName)
 {
+    qDebug() << fullFileName;
     return QFileInfo(fullFileName).fileName();
 }
 
@@ -145,8 +144,19 @@ void MainWindow::prependToRecents(const QString &fileName)
     QStringList recentFiles = oldRecentFiles;
     recentFiles.removeAll(fileName);
     recentFiles.prepend(fileName);
-    //    if (oldRecentFiles != recentFiles)
-    //    {
-    writeRecents(recentFiles, settings);
-    //    }
+    if (oldRecentFiles != recentFiles)
+    {
+        writeRecents(recentFiles, settings);
+    }
+}
+
+void MainWindow::recentFileClicked()
+{
+    for (int i = 0; i < recentsMaxNumber; ++i)
+    {
+        if (sender() == recentsButton[i])
+        {
+            qDebug() << i;
+        }
+    }
 }
