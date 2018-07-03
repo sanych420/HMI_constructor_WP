@@ -37,6 +37,8 @@ public slots:
 
     void recentFileClicked();
 
+    void createNewFile(QString fileName);
+
 private:
 
     enum {recentsMaxNumber = 5};
@@ -51,6 +53,8 @@ private:
     QLabel* labelPath[recentsMaxNumber];
 
     QPushButton* recentsButton[recentsMaxNumber];
+
+    QString globalFilePath[recentsMaxNumber];
 
 };
 

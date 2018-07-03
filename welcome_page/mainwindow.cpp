@@ -47,6 +47,7 @@ void MainWindow::init()
 void MainWindow::buttonNew_clicked()
 {
     qDebug() << "buttonNew was clicked";
+    createNewFile(QDir::currentPath() + "New project");
 }
 
 void MainWindow::buttonOpen_clicked()
@@ -79,6 +80,7 @@ void MainWindow::updateRecents()
     {
         const QString fileName = strippedName(recentFiles.at(i));
         const QString filePath = QFileInfo(recentFiles.at(i)).canonicalFilePath();
+        globalFilePath[i] = filePath;
         recentsButton[i] = new QPushButton(QString("%1. %2 \n %3").arg(i + 1).arg(fileName)
                                            .arg(filePath),recentsWidget);
         recentsButton[i]->setVisible(true);
@@ -156,7 +158,14 @@ void MainWindow::recentFileClicked()
     {
         if (sender() == recentsButton[i])
         {
-            qDebug() << i;
+            fileOpening(globalFilePath[i]);
+            qDebug() << "File #" << i + 1 << ", path" << globalFilePath[i] <<"is opened";
         }
     }
+}
+
+void MainWindow::createNewFile(QString fileName)
+{
+    prependToRecents(fileName);
+    updateRecents();
 }
