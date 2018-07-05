@@ -13,13 +13,18 @@ public:
     WelcomeWidget(QWidget *parent = 0);
     ~WelcomeWidget();
 
+    void setMaxRecentsNumber(int number)
+    {
+        recentsMaxNumber = number;
+    }
+
 public slots:
 
 signals:
 
-void buttonNew_clicked();
+    void buttonNew_clicked();
 
-void buttonOpen_clicked();
+    void buttonOpen_clicked();
 
 private:
 
@@ -33,9 +38,13 @@ private:
 
     void prependToRecents(const QString &filename);
 
+    bool fileExists(const QString &fullFileName);
+
     int recentsMaxNumber = 5;
 
-    QScrollArea* recentsWidget;
+    QWidget* recentsWidget;
+
+    QScrollArea* recentsArea;
 
     QVector<QWidget*> recents;
 
@@ -45,7 +54,13 @@ private:
 
     QString strippedName(const QString &fullFileName);
 
-private slots:
+    QVBoxLayout* layout;
+
+    QGridLayout* mainLayout;
+
+    bool isFirstTimeUpdated = true;
+
+    private slots:
 
     void on_buttonNew_clicked();
 
@@ -57,7 +72,7 @@ private slots:
 
     void recentFileClicked();
 
-
+    void clearLayout(QLayout *layout);
 
 };
 

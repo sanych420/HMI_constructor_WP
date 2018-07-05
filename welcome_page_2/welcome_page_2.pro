@@ -31,3 +31,6 @@ SOURCES += \
 HEADERS += \
         welcomewidget.h \
     custombutton.h
+
+RESOURCES += \
+    icons.qrc

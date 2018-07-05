@@ -16,17 +16,13 @@ void WelcomeWidget::init()
 {
     resize(800,600);
 
-    recentsWidget = new QScrollArea(this);
+    recentsWidget = new QWidget;
 
-    QGridLayout* mainLayout = new QGridLayout(this);
-    QPushButton* buttonNew = new QPushButton(tr("New..."), this);
-    buttonNew->setMaximumSize(100,20);
-    buttonNew->setMinimumSize(100,20);
+    mainLayout = new QGridLayout(this);
+    SpecialButton* buttonNew = new SpecialButton(true, this);
     connect(buttonNew,SIGNAL(clicked(bool)),this,SIGNAL(buttonNew_clicked()));
     //connect(buttonNew,SIGNAL(clicked(bool)),this,SLOT(on_buttonNew_clicked()));
-    QPushButton* buttonOpen = new QPushButton(tr("Open..."), this);
-    buttonOpen->setMaximumSize(100,20);
-    buttonOpen->setMinimumSize(100,20);
+    SpecialButton* buttonOpen = new SpecialButton(false, this);
     connect(buttonOpen,SIGNAL(clicked(bool)),this,SIGNAL(buttonOpen_clicked()));
     connect(buttonOpen,SIGNAL(clicked(bool)),this,SLOT(on_buttonOpen_clicked()));
 
@@ -39,7 +35,12 @@ void WelcomeWidget::init()
 
     setLayout(mainLayout);
 
+    layout = new QVBoxLayout(recentsWidget);
+    //layout->setContentsMargins(0,0,0,200);
+
     updateRecents();
+
+    qDebug() << buttonNew->size();
 }
 
 void WelcomeWidget::on_buttonNew_clicked()
@@ -61,27 +62,37 @@ void WelcomeWidget::updateRecents()
 {
     recentsButtons.clear();
     filePaths.clear();
-    qDeleteAll(recentsWidget->findChildren<QWidget*>("",Qt::FindDirectChildrenOnly));
+    clearLayout(layout);
+//    QList<CustomButton*> allRecentButtons = recentsWidget->findChildren<CustomButton*>("",Qt::FindDirectChildrenOnly);
+
+//    for (int i = 0; i < allRecentButtons.size(); ++i)
+//    {
+//        allRecentButtons.at(i)->deleteLater();
+//    }
+
     QSettings settings("recentfiles.ini", QSettings::IniFormat);
 
     const QStringList recentFiles = readRecents(settings);
     const int count = qMin(int(recentsMaxNumber),recentFiles.size());
 
-    //QVBoxLayout* layout;
+    CustomButton* recentButton;
 
     for (int i = 0; i < count; ++i)
     {
-        //layout = new QVBoxLayout(recentsWidget);
         const QString fileName = strippedName(recentFiles.at(i));
         const QString filePath = QFileInfo(recentFiles.at(i)).canonicalFilePath();
-        CustomButton* recentButton = new CustomButton((tr("%1. ").arg(i + 1) + fileName),filePath,recentsWidget);
+        recentButton = new CustomButton((tr("%1. ").arg(i + 1) + fileName),filePath,recentsWidget);
         recentButton->move(5,5+50*i);
         recentsButtons.append(recentButton);
         filePaths.append(filePath);
-        //layout->addWidget(recentsButtons.at(i));
+        layout->addWidget(recentsButtons.at(i));
         connect(recentButton,SIGNAL(clicked()),this,SLOT(recentFileClicked()));
     }
-    //recentsWidget->setLayout(layout);
+    recentsWidget->setLayout(layout);
+    if (isFirstTimeUpdated)
+    {
+        isFirstTimeUpdated = false;
+    }
 }
 
 QStringList WelcomeWidget::readRecents(QSettings &settings)
@@ -91,7 +102,10 @@ QStringList WelcomeWidget::readRecents(QSettings &settings)
     for (int i = 0; i < count; ++i)
     {
         settings.setArrayIndex(i);
-        result.append(settings.value(tr("file")).toString());
+        if (fileExists(settings.value(tr("file")).toString()))
+        {
+            result.append(settings.value(tr("file")).toString());
+        }
     }
     settings.endArray();
     return result;
@@ -149,5 +163,27 @@ void WelcomeWidget::recentFileClicked()
             openFile(filePaths.at(i));
             qDebug() << "File #" << i + 1 << ", path" << filePaths.at(i) <<"is opened";
         }
+    }
+}
+
+bool WelcomeWidget::fileExists(const QString &fullFileName)
+{
+    bool fileExists = QFileInfo::exists(fullFileName) && QFileInfo(fullFileName).isFile();
+
+    return fileExists;
+}
+
+void WelcomeWidget::clearLayout(QLayout *layout)
+{
+    QLayoutItem *item;
+    while((item = layout->takeAt(0))) {
+        if (item->layout()) {
+            clearLayout(item->layout());
+            delete item->layout();
+        }
+        if (item->widget()) {
+            delete item->widget();
+        }
+        delete item;
     }
 }

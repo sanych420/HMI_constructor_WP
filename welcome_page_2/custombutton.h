@@ -22,4 +22,12 @@ private:
 
 };
 
+class SpecialButton : public QPushButton
+{
+    Q_OBJECT
+    public:
+    SpecialButton(bool trueIsNewFalseIsOpen, QWidget* parent = nullptr);
+
+};
+
 #endif // CUSTOMBUTTON_H
