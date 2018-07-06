@@ -1,6 +1,6 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2018-07-02T15:03:14
+# Project created by QtCreator 2018-07-04T15:02:27
 #
 #-------------------------------------------------
 
@@ -8,7 +8,7 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = welcome_page
+TARGET = welcome_page_2
 TEMPLATE = app
 
 # The following define makes your compiler emit warnings if you use
@@ -25,7 +25,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         main.cpp \
-        mainwindow.cpp
+        welcomewidget.cpp \
+    custombutton.cpp
 
 HEADERS += \
-        mainwindow.h
+        welcomewidget.h \
+    custombutton.h
+
+RESOURCES += \
+    icons.qrc

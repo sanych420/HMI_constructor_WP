@@ -1,13 +1,11 @@
-#include "mainwindow.h"
+#include "welcomewidget.h"
 #include <QApplication>
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    MainWindow w;
+    WelcomeWidget w;
     w.show();
-    QCoreApplication::setApplicationName("HMI Constructor");
-    QCoreApplication::setOrganizationName("INELSY");
 
     return a.exec();
 }
