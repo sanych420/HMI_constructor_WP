@@ -1,4 +1,4 @@
-#ifndef CUSTOMBUTTON_H
+﻿#ifndef CUSTOMBUTTON_H
 #define CUSTOMBUTTON_H
 
 #include <QtWidgets>
@@ -13,12 +13,12 @@ public:
 
 signals:
 
-    void clicked();
+    void clicked(const QString &path);
 
 public slots:
 
 private:
-
+    QString path;
 
 };
 

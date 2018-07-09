@@ -1,18 +1,18 @@
-#include "welcomewidget.h"
+﻿#include "welcomewidget.h"
 #include <QDebug>
 
-WelcomeWidget::WelcomeWidget(QWidget *parent)
+WelcomePage::WelcomePage(QWidget *parent)
     : QWidget(parent)
 {
-    init();
+    //init();
 }
 
-WelcomeWidget::~WelcomeWidget()
+WelcomePage::~WelcomePage()
 {
 
 }
 
-void WelcomeWidget::init()
+void WelcomePage::init()
 {
     resize(800,600);
     setWindowTitle("Welcome page");
@@ -23,11 +23,12 @@ void WelcomeWidget::init()
     recentsArea = new QScrollArea;
 
     mainLayout = new QGridLayout(this);
+    mainLayout->setObjectName("mainLayout");
     SpecialButton* buttonNew = new SpecialButton(true, this);
-    connect(buttonNew,SIGNAL(clicked(bool)),this,SIGNAL(buttonNew_clicked()));
+    connect(buttonNew,SIGNAL(clicked(bool)),this,SIGNAL(createNew()));
     //connect(buttonNew,SIGNAL(clicked(bool)),this,SLOT(on_buttonNew_clicked()));
     SpecialButton* buttonOpen = new SpecialButton(false, this);
-    connect(buttonOpen,SIGNAL(clicked(bool)),this,SIGNAL(buttonOpen_clicked()));
+    //connect(buttonOpen,SIGNAL(clicked(bool)),this,SIGNAL(buttonOpen_clicked()));
     connect(buttonOpen,SIGNAL(clicked(bool)),this,SLOT(on_buttonOpen_clicked()));
 
     mainLayout->addWidget(buttonNew,0,0);
@@ -40,26 +41,31 @@ void WelcomeWidget::init()
     setLayout(mainLayout);
 
     layout = new QVBoxLayout(recentsWidget);
+    layout->setObjectName("layout");
 
     updateRecents();
 }
 
-void WelcomeWidget::on_buttonNew_clicked()
+void WelcomePage::on_buttonNew_clicked()
 {
     qDebug() << "buttonNew was clicked";
     createNewFile(QDir::currentPath() + "/NewProject.txt");
 }
 
-void WelcomeWidget::on_buttonOpen_clicked()
+void WelcomePage::on_buttonOpen_clicked()
 {
     qDebug() << "buttonOpen was clicked";
-    QFileDialog* dialog = new QFileDialog(this);
+    /*QFileDialog* dialog = new QFileDialog(this);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     connect(dialog,SIGNAL(fileSelected(QString)),this,SLOT(openFile(QString)));
-    dialog->exec();
+    dialog->exec();*/
+
+    QString path = QFileDialog::getOpenFileName(this, tr("Open existing file"), "", tr("Project (*.%1)").arg(extension.isEmpty() ? "*" : extension));
+    if (!checkFile(path)) return;
+    emit openExisting(path);
 }
 
-void WelcomeWidget::updateRecents()
+void WelcomePage::updateRecents()
 {
     recentsButtons.clear();
     filePaths.clear();
@@ -80,17 +86,15 @@ void WelcomeWidget::updateRecents()
     const QStringList recentFiles = readRecents(settings);
     const int count = qMin(int(recentsMaxNumber),recentFiles.size());
 
-    CustomButton* recentButton;
-
     for (int i = 0; i < count; ++i)
     {
         const QString fileName = strippedName(recentFiles.at(i));
         const QString filePath = QFileInfo(recentFiles.at(i)).canonicalFilePath();
-        recentButton = new CustomButton((tr("%1. ").arg(i + 1) + fileName),filePath,recentsWidget);
+        CustomButton* recentButton = new CustomButton((tr("%1. ").arg(i + 1) + fileName), filePath, recentsWidget);
         recentsButtons.append(recentButton);
         filePaths.append(filePath);
         layout->addWidget(recentsButtons.at(i));
-        connect(recentButton,SIGNAL(clicked()),this,SLOT(recentFileClicked()));
+        connect(recentButton, SIGNAL(clicked()), this, SLOT(recentFileClicked()));
     }
 
     layout->addStretch(1);
@@ -98,35 +102,35 @@ void WelcomeWidget::updateRecents()
     recentsArea->setWidget(recentsWidget);
 }
 
-QStringList WelcomeWidget::readRecents(QSettings &settings)
+QStringList WelcomePage::readRecents(QSettings &settings)
 {
     QStringList result;
-    const int count = settings.beginReadArray(tr("recentFileList"));
+    const int count = settings.beginReadArray("recentFileList");
     for (int i = 0; i < count; ++i)
     {
         settings.setArrayIndex(i);
-        if (fileExists(settings.value(tr("file")).toString()))
+        if (fileExists(settings.value("file").toString()))
         {
-            result.append(settings.value(tr("file")).toString());
+            result.append(settings.value("file").toString());
         }
     }
     settings.endArray();
     return result;
 }
 
-void WelcomeWidget::writeRecents(const QStringList &files, QSettings &settings)
+void WelcomePage::writeRecents(const QStringList &files, QSettings &settings)
 {
     const int count = files.size();
-    settings.beginWriteArray(tr("recentFileList"));
+    settings.beginWriteArray("recentFileList");
     for (int i = 0; i < count; ++i)
     {
         settings.setArrayIndex(i);
-        settings.setValue(tr("file"),files.at(i));
+        settings.setValue("file",files.at(i));
     }
     settings.endArray();
 }
 
-void WelcomeWidget::prependToRecents(const QString &fileName)
+void WelcomePage::prependToRecents(const QString &fileName)
 {
     QSettings settings("recentfiles.ini", QSettings::IniFormat);
 
@@ -140,24 +144,40 @@ void WelcomeWidget::prependToRecents(const QString &fileName)
     }
 }
 
-void WelcomeWidget::createNewFile(const QString &fileName)
+void WelcomePage::createNewFile(const QString &fileName)
 {
     prependToRecents(fileName);
     updateRecents();
 }
 
-void WelcomeWidget::openFile(const QString &fileName)
+void WelcomePage::openFile(const QString &fileName)
 {
+    if (!checkFile(fileName)) return;
+
     prependToRecents(fileName);
     updateRecents();
+
+    emit openExisting(fileName);
 }
 
-QString WelcomeWidget::strippedName(const QString &fullFileName)
+bool WelcomePage::checkFile(const QString &path) {
+    if (!QFile(path).exists()) return false;
+    if (!extension.isEmpty()) {
+        if (QFileInfo(path).completeSuffix() != extension) return false;
+    }
+    return true;
+}
+
+void WelcomePage::sanitize() {
+    //for ()
+}
+
+QString WelcomePage::strippedName(const QString &fullFileName)
 {
     return QFileInfo(fullFileName).fileName();
 }
 
-void WelcomeWidget::recentFileClicked()
+void WelcomePage::recentFileClicked()
 {
     for (int i = 0; i < qMin(recentsMaxNumber, recentsButtons.size()); ++i)
     {
@@ -169,14 +189,12 @@ void WelcomeWidget::recentFileClicked()
     }
 }
 
-bool WelcomeWidget::fileExists(const QString &fullFileName)
+bool WelcomePage::fileExists(const QString &fullFileName)
 {
-    bool fileExists = QFileInfo::exists(fullFileName) && QFileInfo(fullFileName).isFile();
-
-    return fileExists;
+    return QFileInfo::exists(fullFileName) && QFileInfo(fullFileName).isFile();;
 }
 
-void WelcomeWidget::clearLayout(QLayout *layout)
+void WelcomePage::clearLayout(QLayout *layout)
 {
     QLayoutItem *item;
     while((item = layout->takeAt(0))) {
