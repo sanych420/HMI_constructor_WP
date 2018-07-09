@@ -4,7 +4,7 @@
 WelcomePage::WelcomePage(QWidget *parent)
     : QWidget(parent)
 {
-    //init();
+
 }
 
 WelcomePage::~WelcomePage()

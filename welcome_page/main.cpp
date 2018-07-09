@@ -1,12 +1,12 @@
-﻿#include "welcomewidget.h"
+﻿#include "swelcomepage.h"
 #include <QApplication>
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    WelcomePage w;
+    SWelcomePage w;
     w.init();
-    w.setExtension("pro");
+    w.setExtension("ini");
 
     w.show();
 

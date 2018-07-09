@@ -1,6 +1,6 @@
-﻿#include "custombutton.h"
+﻿#include "scustombutton.h"
 
-CustomButton::CustomButton(const QString &name, const QString &path, QWidget *parent) : QFrame(parent)
+SCustomButton::SCustomButton(const QString &name, const QString &path, QWidget *parent) : QFrame(parent)
 {
     this->path = path;
     setStyleSheet("CustomButton"
@@ -24,7 +24,7 @@ CustomButton::CustomButton(const QString &name, const QString &path, QWidget *pa
     setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 }
 
-void CustomButton::mousePressEvent(QMouseEvent *event)
+void SCustomButton::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton)
     {
@@ -45,23 +45,9 @@ SpecialButton::SpecialButton(bool trueIsNewFalseIsOpen, QWidget *parent) : QPush
     font.setPixelSize(minSize.height() / 3);
     setFont(font);
 
-    /*QScreen* screen = QGuiApplication::primaryScreen();
-
-    QSize minSize, maxSize;
-
-    minSize.setHeight(screen->availableSize().height() / 30);
-    minSize.setWidth(screen->availableSize().width() / 20);
-
-    maxSize.setHeight(screen->availableSize().height() / 25);
-    maxSize.setWidth(screen->availableSize().width() / 15);
-
-    setMinimumSize(minSize);
-    setMaximumSize(maxSize);*/
 
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
 
-
-    //setFont(QFont("MS Shell Dlg 2", minSize.height() / 3, 1, false));
 
     setStyleSheet("SpecialButton"
                   " {"
