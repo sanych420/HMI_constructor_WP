@@ -4,9 +4,7 @@
 SWelcomePage::SWelcomePage(QWidget *parent)
     : QWidget(parent)
 {
-//        QFont font = this->font();
-//        font.setPixelSize(20);
-//        this->setFont(font);
+
 }
 
 SWelcomePage::~SWelcomePage()
@@ -16,16 +14,10 @@ SWelcomePage::~SWelcomePage()
 
 void SWelcomePage::init()
 {
-    resize(1280, 720);
-    setWindowTitle("Welcome page");
-
-    QFont font = this->font();
-    font.setPixelSize(14);
-    this->setFont(font);
-
     recentsWidget = new QWidget(this);
     recentsWidget->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Minimum);
     recentsArea = new QScrollArea;
+    recentsArea->setObjectName("recentsArea");
     mainLayout = new QGridLayout(this);
     mainLayout->setObjectName("mainLayout");
 
@@ -36,13 +28,7 @@ void SWelcomePage::init()
     buttonNew->setText(tr("&New..."));
     buttonNew->setIcon(QIcon(newPixmap));
     buttonNew->setIconSize(fontMetrics.size(Qt::TextShowMnemonic,buttonNew->text()));
-    buttonNew->setStyleSheet("QPushButton"
-                             " {"
-                             "   background-color: rgb(240,240,240);"
-                             "   border: 1px solid rgb(25,25,25);"
-                             "   padding: 5px;"
-                             " }"
-                             "QPushButton:hover { background-color: white; }");
+
     connect(buttonNew,SIGNAL(clicked(bool)),this,SIGNAL(createNew()));
 
     QPushButton* buttonOpen = new QPushButton(this);
@@ -50,13 +36,6 @@ void SWelcomePage::init()
     buttonOpen->setText(tr("&Open..."));
     buttonOpen->setIcon(QIcon(openPixmap));
     buttonOpen->setIconSize(fontMetrics.size(Qt::TextShowMnemonic,buttonOpen->text()));
-    buttonOpen->setStyleSheet("QPushButton"
-                              " {"
-                              "   background-color: rgb(240,240,240);"
-                              "   border: 1px solid rgb(25,25,25);"
-                              "   padding: 5px;"
-                              " }"
-                              "QPushButton:hover { background-color: white; }");
     connect(buttonOpen,SIGNAL(clicked(bool)),this,SLOT(on_buttonOpen_clicked()));
 
     mainLayout->addWidget(buttonNew,0,0);
@@ -94,6 +73,7 @@ void SWelcomePage::updateRecents()
     clearLayout(layout);
 
     recentsLabel = new QLabel(tr("Recently opened files"), recentsWidget);
+    recentsLabel->setObjectName("recentsLabel");
     layout->addWidget(recentsLabel);
 
     QSettings settings("recentfiles.ini", QSettings::IniFormat);
@@ -103,6 +83,7 @@ void SWelcomePage::updateRecents()
     if (count == 0)
     {
         QLabel* emptyLabel = new QLabel(tr("No recently opened files. Press \"New...\" to add one, or \"Open...\" to open an existing project."), recentsWidget);
+        emptyLabel->setObjectName("emptyLabel");
         layout->addWidget(emptyLabel);
     }
     else
@@ -183,7 +164,7 @@ void SWelcomePage::openFile(const QString &fileName)
 
 bool SWelcomePage::checkFile(const QString &path)
 {
-    if (!QFile(path).exists())
+    if (!fileExists(path))
     {
         return false;
     }
@@ -199,7 +180,7 @@ bool SWelcomePage::checkFile(const QString &path)
 
 void SWelcomePage::sanitize()
 {
-    //do i really need it tho
+    //
 }
 
 QString SWelcomePage::strippedName(const QString &fullFileName)

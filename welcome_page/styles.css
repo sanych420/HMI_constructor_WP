@@ -1,0 +1,25 @@
+QPushButton
+{
+    background-color: rgb(240,240,240);
+    border: 1px solid rgb(25,25,25);
+    padding: 5px;
+    font-size: 12pt;
+}
+QPushButton:hover { background-color: white; }
+
+SCustomButton
+{
+    background-color: rgb(240,240,240);
+    border: 1px solid rgb(240,240,240);
+}
+SCustomButton:hover { background-color: white; }
+
+QLabel#recentsLabel, QLabel#emptyLabel
+{
+    font-size: 12pt;
+}
+
+QScrollArea#recentsArea
+{
+    border: 1px solid rgb(150,150,150);
+}

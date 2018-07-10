@@ -33,4 +33,6 @@ HEADERS += \
         scustombutton.h
 
 RESOURCES += \
-    icons.qrc
+    res.qrc
+
+DISTFILES +=

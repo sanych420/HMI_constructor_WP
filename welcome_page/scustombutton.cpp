@@ -4,13 +4,6 @@ SCustomButton::SCustomButton(const QString &name, const QString &path, QWidget *
 {
     this->path = path;
 
-    setStyleSheet("SCustomButton"
-                  " {"
-                  "   background-color: rgb(240,240,240);"
-                  "   border: 1px solid rgb(240,240,240);"
-                  " }"
-                  "SCustomButton:hover { background-color: white; }");
-
     QLabel* nameLabel = new QLabel(name, this);
     QFont nameFont = nameLabel->font();
     nameFont.setBold(true);
