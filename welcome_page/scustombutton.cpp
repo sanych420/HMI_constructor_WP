@@ -27,6 +27,7 @@ void SCustomButton::mousePressEvent(QMouseEvent *event)
     {
         emit clicked(path);
     }
+    QWidget::mousePressEvent(event);
 }
 
 

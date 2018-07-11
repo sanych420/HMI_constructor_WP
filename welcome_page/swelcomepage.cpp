@@ -24,8 +24,8 @@ void SWelcomePage::init()
     QPushButton* buttonNew = new QPushButton(this);
     QPixmap newPixmap = QPixmap(":/new.png");
     QFontMetrics fontMetrics = this->fontMetrics();
-    qDebug() << fontMetrics.size(Qt::TextShowMnemonic,buttonNew->text());
     buttonNew->setText(tr("&New..."));
+    buttonNew->setObjectName("buttonNew");
     buttonNew->setIcon(QIcon(newPixmap));
     buttonNew->setIconSize(fontMetrics.size(Qt::TextShowMnemonic,buttonNew->text()));
 
@@ -35,6 +35,7 @@ void SWelcomePage::init()
     QPixmap openPixmap = QPixmap(":/open.png");
     buttonOpen->setText(tr("&Open..."));
     buttonOpen->setIcon(QIcon(openPixmap));
+    buttonOpen->setObjectName("buttonOpen");
     buttonOpen->setIconSize(fontMetrics.size(Qt::TextShowMnemonic,buttonOpen->text()));
     connect(buttonOpen,SIGNAL(clicked(bool)),this,SLOT(on_buttonOpen_clicked()));
 
@@ -148,12 +149,6 @@ void SWelcomePage::prependToRecents(const QString &fileName)
     }
 }
 
-void SWelcomePage::createNewFile(const QString &fileName)
-{
-    prependToRecents(fileName);
-    updateRecents();
-}
-
 void SWelcomePage::openFile(const QString &fileName)
 {
     prependToRecents(fileName);
@@ -176,11 +171,6 @@ bool SWelcomePage::checkFile(const QString &path)
         }
     }
     return true;
-}
-
-void SWelcomePage::sanitize()
-{
-    //
 }
 
 QString SWelcomePage::strippedName(const QString &fullFileName)
